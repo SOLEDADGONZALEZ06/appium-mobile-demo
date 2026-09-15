@@ -5,6 +5,8 @@ import pytest
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
 
+APK_PATH = Path(__file__).resolve().parent.parent / "apps" / "mda.apk"
+
 
 def take_screenshot(driver, name="screenshot", output_dir=None):
     """Guarda una captura del estado actual de la app en un archivo .png."""
@@ -30,6 +32,7 @@ def take_screenshot(driver, name="screenshot", output_dir=None):
 def driver():
     """Crea el driver de Appium para el emulador Android."""
     caps = dict(
+        app=str(APK_PATH),
         platformName="Android",
         automationName="UiAutomator2",
         deviceName="emulator-5554",
