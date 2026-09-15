@@ -1,0 +1,42 @@
+name: Tests de Appium
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: macos-latest
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias de Python
+        run: pip install -r requirements.txt
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Instalar Appium
+        run: |
+          npm install -g appium
+          appium driver install uiautomator2
+
+      - name: Levantar Appium en segundo plano
+        run: appium &
+
+      - name: Correr tests sobre emulador Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          script: pytest tests/step_defs/ -v
