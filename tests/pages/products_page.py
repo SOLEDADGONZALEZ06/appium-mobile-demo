@@ -11,6 +11,7 @@ class ProductsPage:
     MENU_ICON = (AppiumBy.ID, f"{PACKAGE}:id/menuIV")
     LOGOUT_BUTTON = (AppiumBy.ACCESSIBILITY_ID, "Logout Menu Item")
     LOGOUT_CONFIRM_BUTTON = (AppiumBy.ID, "android:id/button1")
+    LOGIN_MENU_ITEM = (AppiumBy.ACCESSIBILITY_ID, "Login Menu Item")
 
     PRODUCT_ITEMS = (AppiumBy.ID, f"{PACKAGE}:id/productIV")
     BOTON_AGREGAR_CARRITO = (AppiumBy.ID, f"{PACKAGE}:id/cartBt")
@@ -46,6 +47,29 @@ class ProductsPage:
             EC.element_to_be_clickable(self.LOGOUT_CONFIRM_BUTTON)
         )
         confirm_btn.click()
+
+    def go_to_login_screen(self, driver):
+        """Abre el menú y navega a la pantalla de login, ya sea desloguenado
+        una sesión activa o tocando 'Log In' directamente si no hay sesión."""
+        menu = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(self.MENU_ICON)
+        )
+        menu.click()
+
+        try:
+            logout_btn = WebDriverWait(driver, 3).until(
+                EC.element_to_be_clickable(self.LOGOUT_BUTTON)
+            )
+            logout_btn.click()
+            confirm_btn = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable(self.LOGOUT_CONFIRM_BUTTON)
+            )
+            confirm_btn.click()
+        except TimeoutException:
+            login_btn = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable(self.LOGIN_MENU_ITEM)
+            )
+            login_btn.click()
 
     def select_first_product(self, driver):
         WebDriverWait(driver, 10).until(
