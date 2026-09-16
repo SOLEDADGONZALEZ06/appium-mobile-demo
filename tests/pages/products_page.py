@@ -79,6 +79,11 @@ class ProductsPage:
         productos[0].click()
 
     def tap_add_to_cart(self, driver):
+        driver.find_element(
+            AppiumBy.ANDROID_UIAUTOMATOR,
+            'new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView('
+            f'new UiSelector().resourceId("{PACKAGE}:id/cartBt"))'
+        )
         boton = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(self.BOTON_AGREGAR_CARRITO)
         )
