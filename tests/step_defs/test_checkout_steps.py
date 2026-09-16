@@ -16,7 +16,7 @@ checkout_page = CheckoutPage()
 @given("la app está abierta en la pantalla de login")
 def app_abierta_en_login(driver):
     if products_page.is_on_products_screen(driver):
-        products_page.logout(driver)
+        products_page.go_to_login_screen(driver)
         time.sleep(2)
     print("ACTIVITY ACTUAL:", driver.current_activity)
 
