@@ -24,6 +24,13 @@ class CheckoutPage:
     BOTON_CONFIRMAR_COMPRA = (AppiumBy.ACCESSIBILITY_ID, "Completes the process of checkout")
     TITULO_COMPRA_COMPLETADA = (AppiumBy.ID, f"{PACKAGE}:id/completeTV")
 
+    def _scroll_to(self, driver, resource_id):
+        driver.find_element(
+            AppiumBy.ANDROID_UIAUTOMATOR,
+            'new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView('
+            f'new UiSelector().resourceId("{resource_id}"))'
+        )
+
     def registrar_cliente(self, driver, nombre, direccion1, direccion2, ciudad, estado, codigo_postal, pais):
         campo = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(self.FULL_NAME_INPUT)
@@ -55,12 +62,14 @@ class CheckoutPage:
         campo.clear()
         campo.send_keys(estado)
 
+        self._scroll_to(driver, f"{PACKAGE}:id/zipET")
         campo = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(self.ZIP_INPUT)
         )
         campo.clear()
         campo.send_keys(codigo_postal)
 
+        self._scroll_to(driver, f"{PACKAGE}:id/countryET")
         campo = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(self.COUNTRY_INPUT)
         )
@@ -68,6 +77,7 @@ class CheckoutPage:
         campo.send_keys(pais)
 
     def tap_to_payment(self, driver):
+        self._scroll_to(driver, f"{PACKAGE}:id/paymentBtn")
         boton = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(self.BOTON_IR_A_PAGO)
         )
