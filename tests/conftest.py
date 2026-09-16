@@ -58,10 +58,13 @@ def driver():
 def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
-    print(f"DEBUG: when={report.when}, failed={report.failed}, funcargs={list(item.funcargs.keys())}")
     if report.when == "call" and report.failed:
-        driver = item.funcargs.get("driver")
-        print(f"DEBUG: driver encontrado = {driver is not None}")
+        driver = None
+        if "driver" in item.fixturenames:
+            try:
+                driver = item._request.getfixturevalue("driver")
+            except Exception:
+                driver = None
         if driver:
             screenshot_path = take_screenshot(driver, name="failure")
             print(f"DEBUG: screenshot guardada en {screenshot_path}")
