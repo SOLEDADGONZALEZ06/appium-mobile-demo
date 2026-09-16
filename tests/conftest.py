@@ -28,8 +28,15 @@ def take_screenshot(driver, name="screenshot", output_dir=None):
     raise AttributeError("El driver no tiene soporte para capturas de pantalla.")
 
 
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+    setattr(item, f"rep_{report.when}", report)
+
+
 @pytest.fixture(scope="function")
-def driver():
+def driver(request):
     """Crea el driver de Appium para el emulador Android."""
     caps = dict(
         app=str(APK_PATH),
@@ -50,21 +57,11 @@ def driver():
 
     driver = webdriver.Remote("http://127.0.0.1:4723", options=options)
     driver.implicitly_wait(10)
+
     yield driver
+
+    if getattr(request.node, "rep_call", None) is not None and request.node.rep_call.failed:
+        screenshot_path = take_screenshot(driver, name="failure")
+        print(f"DEBUG: screenshot guardada en {screenshot_path}")
+
     driver.quit()
-
-
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    outcome = yield
-    report = outcome.get_result()
-    if report.when == "call" and report.failed:
-        driver = None
-        if "driver" in item.fixturenames:
-            try:
-                driver = item._request.getfixturevalue("driver")
-            except Exception:
-                driver = None
-        if driver:
-            screenshot_path = take_screenshot(driver, name="failure")
-            print(f"DEBUG: screenshot guardada en {screenshot_path}")
