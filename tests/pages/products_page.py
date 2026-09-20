@@ -15,6 +15,7 @@ class ProductsPage:
     BOTON_AGREGAR_CARRITO = (AppiumBy.ID, f"{PACKAGE}:id/cartBt")
     CARRITO_ICON = (AppiumBy.ACCESSIBILITY_ID, "View cart")
     CONTINUE_SHOPPING_BTN = (AppiumBy.ACCESSIBILITY_ID, "Continue Shopping")
+    LOGIN_USERNAME_FIELD = (AppiumBy.ID, f"{PACKAGE}:id/nameET")  # ← nuevo
 
     def is_products_screen_displayed(self, driver):
         try:
@@ -29,6 +30,15 @@ class ProductsPage:
         try:
             WebDriverWait(driver, timeout).until(
                 EC.presence_of_element_located(self.PRODUCTS_TITLE)
+            )
+            return True
+        except TimeoutException:
+            return False
+
+    def is_on_login_screen(self, driver, timeout=3):  # ← nuevo
+        try:
+            WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located(self.LOGIN_USERNAME_FIELD)
             )
             return True
         except TimeoutException:
@@ -59,6 +69,9 @@ class ProductsPage:
         ).click()
 
     def go_to_login_screen(self, driver):
+        # Si ya estamos en login screen, no hay nada que hacer
+        if self.is_on_login_screen(driver, timeout=3):
+            return
         self.ensure_on_products_screen(driver)
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(self.MENU_ICON)
