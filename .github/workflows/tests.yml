@@ -32,14 +32,22 @@ jobs:
           npm install -g appium@3.6.0
           appium driver install uiautomator2
 
-      - name: Levantar Appium en segundo plano
-        run: appium &
-
       - name: Habilitar KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+
+      - name: Levantar Appium en segundo plano
+        run: appium &
+
+      - name: Esperar que Appium esté listo
+        run: |
+          echo "Esperando Appium..."
+          for i in $(seq 1 30); do
+            curl -s http://localhost:4723/status && echo "Appium listo!" && break
+            sleep 2
+          done
 
       - name: Correr tests sobre emulador Android
         uses: reactivecircus/android-emulator-runner@v2
@@ -47,7 +55,12 @@ jobs:
           api-level: 30
           target: google_apis
           arch: x86_64
-          script: pytest tests/step_defs/ -v
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: |
+            adb wait-for-device
+            sleep 15
+            pytest tests/step_defs/ -v
 
       - name: Subir capturas de pantalla
         if: always()
