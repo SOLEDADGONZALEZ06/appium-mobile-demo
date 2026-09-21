@@ -97,6 +97,11 @@ class ProductsPage:
         ).click()
 
     def tap_add_to_cart(self, driver):
+        driver.execute_script("mobile: scrollGesture", {
+            "left": 100, "top": 300, "width": 200, "height": 500,
+            "direction": "down",
+            "percent": 0.75
+        })
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(self.BOTON_AGREGAR_CARRITO)
         ).click()
