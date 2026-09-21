@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+import time
 
 import pytest
 from appium import webdriver
@@ -58,6 +59,8 @@ def driver(request):
 
     driver = webdriver.Remote("http://127.0.0.1:4723", options=options)
     driver.implicitly_wait(10)
+
+    time.sleep(5)
 
     yield driver
 
