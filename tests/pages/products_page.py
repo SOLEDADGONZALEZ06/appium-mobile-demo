@@ -69,20 +69,27 @@ class ProductsPage:
         ).click()
 
     def go_to_login_screen(self, driver):
-        # Detecta login por elemento real, no por current_activity
+        print(f"DEBUG go_to_login_screen: activity={driver.current_activity}")
         if self.is_on_login_screen(driver):
+            print("DEBUG: ya estamos en login, salimos")
             return
-        # Estamos en products → navegamos via menu
-        WebDriverWait(driver, 10).until(
+        print("DEBUG: esperando products title...")
+        WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located(self.PRODUCTS_TITLE)
+        )
+        print("DEBUG: products title visible, clickando menu...")
+        WebDriverWait(driver, 15).until(
             EC.element_to_be_clickable(self.MENU_ICON)
         ).click()
+        print("DEBUG: menu abierto, clickando login menu item...")
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(self.LOGIN_MENU_ITEM)
         ).click()
-        # Esperamos que aparezca el campo de login
+        print("DEBUG: esperando campo username...")
         WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located(self.LOGIN_USERNAME_FIELD)
         )
+        print("DEBUG: login screen lista")
 
     def select_first_product(self, driver):
         WebDriverWait(driver, 10).until(
