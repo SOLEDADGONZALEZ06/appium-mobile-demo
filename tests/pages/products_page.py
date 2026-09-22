@@ -20,9 +20,9 @@ class ProductsPage:
 
     def is_products_screen_displayed(self, driver):
         try:
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located(self.PRODUCTS_TITLE))
+            driver.find_element(*self.PRODUCTS_TITLE)
             return True
-        except TimeoutException:
+        except Exception:
             return False
 
     def is_on_products_screen(self, driver, timeout=3):
@@ -34,19 +34,32 @@ class ProductsPage:
 
     def is_on_login_screen(self, driver):
         try:
-            WebDriverWait(driver, 5).until(EC.visibility_of_element_located(self.LOGIN_USERNAME_FIELD))
+            WebDriverWait(driver, 3).until(EC.visibility_of_element_located(self.LOGIN_USERNAME_FIELD))
             return True
         except TimeoutException:
             return False
 
+    def navigate_to_products_screen(self, driver):
+        """Navega a la pantalla de products desde cualquier pantalla, usando back."""
+        for attempt in range(8):
+            if self.is_on_products_screen(driver, timeout=2):
+                print(f"DEBUG: llegamos a products screen en intento {attempt}")
+                return True
+            print(f"DEBUG: no estamos en products, presionando back (intento {attempt+1})")
+            driver.back()
+            time.sleep(1)
+        return False
+
     def ensure_on_products_screen(self, driver):
-        if not self.is_on_products_screen(driver, timeout=3):
-            try:
-                continue_btn = WebDriverWait(driver, 5).until(EC.element_to_be_clickable(self.CONTINUE_SHOPPING_BTN))
-                continue_btn.click()
-                WebDriverWait(driver, 10).until(EC.presence_of_element_located(self.PRODUCTS_TITLE))
-            except TimeoutException:
-                pass
+        if self.is_on_products_screen(driver, timeout=2):
+            return
+        # Puede estar en carrito u otra pantalla, intentar continue shopping
+        try:
+            btn = WebDriverWait(driver, 3).until(EC.element_to_be_clickable(self.CONTINUE_SHOPPING_BTN))
+            btn.click()
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located(self.PRODUCTS_TITLE))
+        except TimeoutException:
+            self.navigate_to_products_screen(driver)
 
     def logout(self, driver):
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable(self.MENU_ICON)).click()
@@ -55,13 +68,22 @@ class ProductsPage:
 
     def go_to_login_screen(self, driver):
         print(f"DEBUG go_to_login_screen: activity={driver.current_activity}")
+
+        # Si ya estamos en login, listo
         if self.is_on_login_screen(driver):
             print("DEBUG: ya estamos en login, salimos")
             return
-        print("DEBUG: esperando products title...")
-        WebDriverWait(driver, 15).until(EC.presence_of_element_located(self.PRODUCTS_TITLE))
-        print("DEBUG: products title visible, clickando menu...")
+
+        # Si no estamos en products, navegar hasta llegar
+        if not self.is_on_products_screen(driver, timeout=3):
+            print("DEBUG: no estamos en products, navegando hacia atrás...")
+            reached = self.navigate_to_products_screen(driver)
+            if not reached:
+                raise Exception("No se pudo navegar a la pantalla de Products")
+
+        print("DEBUG: estamos en products, clickando menu...")
         WebDriverWait(driver, 15).until(EC.element_to_be_clickable(self.MENU_ICON)).click()
+
         try:
             logout_btn = WebDriverWait(driver, 3).until(EC.element_to_be_clickable(self.LOGOUT_BUTTON))
             print("DEBUG: usuario logueado, haciendo logout...")
@@ -73,6 +95,7 @@ class ProductsPage:
             WebDriverWait(driver, 15).until(EC.element_to_be_clickable(self.MENU_ICON)).click()
         except TimeoutException:
             print("DEBUG: no había logout en el menú, continuando...")
+
         print("DEBUG: clickando login menu item...")
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable(self.LOGIN_MENU_ITEM)).click()
         print("DEBUG: esperando campo username...")
