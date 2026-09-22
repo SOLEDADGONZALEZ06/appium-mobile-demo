@@ -83,14 +83,11 @@ class ProductsPage:
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable(self.PRODUCT_ITEMS)).click()
 
     def tap_add_to_cart(self, driver):
-        # Scroll dos veces para asegurarnos de llegar al botón
-        for _ in range(2):
-            driver.execute_script("mobile: scrollGesture", {
-                "left": 0, "top": 400, "width": 400, "height": 800,
-                "direction": "down",
-                "percent": 0.8
-            })
-            time.sleep(0.5)
+        driver.execute_script("mobile: scroll", {
+            "strategy": "id",
+            "selector": f"{PACKAGE}:id/cartBt",
+            "direction": "down"
+        })
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable(self.BOTON_AGREGAR_CARRITO)).click()
 
     def go_to_cart(self, driver):
