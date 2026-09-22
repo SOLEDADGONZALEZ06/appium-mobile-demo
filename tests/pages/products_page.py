@@ -62,7 +62,6 @@ class ProductsPage:
         WebDriverWait(driver, 15).until(EC.presence_of_element_located(self.PRODUCTS_TITLE))
         print("DEBUG: products title visible, clickando menu...")
         WebDriverWait(driver, 15).until(EC.element_to_be_clickable(self.MENU_ICON)).click()
-        # Si el usuario ya está logueado, el menú muestra Logout → hacemos logout primero
         try:
             logout_btn = WebDriverWait(driver, 3).until(EC.element_to_be_clickable(self.LOGOUT_BUTTON))
             print("DEBUG: usuario logueado, haciendo logout...")
@@ -84,12 +83,14 @@ class ProductsPage:
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable(self.PRODUCT_ITEMS)).click()
 
     def tap_add_to_cart(self, driver):
-        driver.execute_script("mobile: scrollGesture", {
-            "left": 100, "top": 300, "width": 200, "height": 500,
-            "direction": "down",
-            "percent": 1.0
-        })
-        time.sleep(0.5)
+        # Scroll dos veces para asegurarnos de llegar al botón
+        for _ in range(2):
+            driver.execute_script("mobile: scrollGesture", {
+                "left": 0, "top": 400, "width": 400, "height": 800,
+                "direction": "down",
+                "percent": 0.8
+            })
+            time.sleep(0.5)
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable(self.BOTON_AGREGAR_CARRITO)).click()
 
     def go_to_cart(self, driver):
