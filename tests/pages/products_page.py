@@ -84,8 +84,8 @@ class ProductsPage:
 
     def tap_add_to_cart(self, driver):
         driver.execute_script("mobile: scroll", {
-            "strategy": "id",
-            "selector": f"{PACKAGE}:id/cartBt",
+            "strategy": "-android uiautomator",
+            "selector": f'new UiSelector().resourceId("{PACKAGE}:id/cartBt")',
             "direction": "down"
         })
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable(self.BOTON_AGREGAR_CARRITO)).click()
