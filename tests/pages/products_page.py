@@ -2,6 +2,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+import time
 
 PACKAGE = "com.saucelabs.mydemoapp.android"
 
@@ -67,7 +68,9 @@ class ProductsPage:
             print("DEBUG: usuario logueado, haciendo logout...")
             logout_btn.click()
             WebDriverWait(driver, 5).until(EC.element_to_be_clickable(self.LOGOUT_CONFIRM_BUTTON)).click()
-            print("DEBUG: logout hecho, reabriendo menu...")
+            print("DEBUG: logout hecho, esperando que pantalla se estabilice...")
+            time.sleep(1)
+            print("DEBUG: reabriendo menu...")
             WebDriverWait(driver, 15).until(EC.element_to_be_clickable(self.MENU_ICON)).click()
         except TimeoutException:
             print("DEBUG: no había logout en el menú, continuando...")
@@ -84,8 +87,9 @@ class ProductsPage:
         driver.execute_script("mobile: scrollGesture", {
             "left": 100, "top": 300, "width": 200, "height": 500,
             "direction": "down",
-            "percent": 0.75
+            "percent": 1.0
         })
+        time.sleep(0.5)
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable(self.BOTON_AGREGAR_CARRITO)).click()
 
     def go_to_cart(self, driver):
